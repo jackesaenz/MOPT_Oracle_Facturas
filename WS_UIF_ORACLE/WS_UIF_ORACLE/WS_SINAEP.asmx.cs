@@ -228,7 +228,7 @@ namespace WS_UIF_ORACLE
         /// <summary>
         /// ELABORADO POR: UNIDAD INFORMATICA - FINANCIERO
         /// AUTOR: Jackeline Sáenz Sampson
-        /// Consulta si el proveedor existe
+        /// Consulta si el proveedor existe por cédula jurídica
         /// </summary>
         [WebMethod]
         public void ConsultaExisteProveedor(string vCedulaJuridica, out string[] vDescMsjError, out bool vExiste)
@@ -278,6 +278,34 @@ namespace WS_UIF_ORACLE
             if (!vError)
             {
                 sinaep.ConsultaNombreProveedor(vNombre, out vDescMsjError, out vListaProveedores);
+            }
+        }
+
+        /// <summary>
+        /// ELABORADO POR: UNIDAD INFORMATICA - FINANCIERO
+        /// AUTOR: Jackeline Sáenz Sampson
+        /// Consulta proveedor por número de cédula
+        /// </summary>
+        [WebMethod]
+        public void ConsultaCedulaProveedor(string vCedula, out string[] vDescMsjError, out List<Proveedores> vListaProveedores)
+        {
+            vDescMsjError = new string[0];
+            vListaProveedores = new List<Proveedores>();
+
+            bool vError = false;
+            int i = 0;
+
+            if (string.IsNullOrEmpty(vCedula.Trim()) || vCedula.Equals("?"))
+            {
+                vError = true;
+                Array.Resize(ref vDescMsjError, vDescMsjError.Length + 1);
+                vDescMsjError[i] = "007-Se requiere un valor para la cédula del Proveedor.";
+                i++;
+            }
+
+            if (!vError)
+            {
+                sinaep.ConsultaCedulaProveedor(vCedula, out vDescMsjError, out vListaProveedores);
             }
         }
     }

@@ -343,5 +343,49 @@ namespace Negocio
                 vDescMsjError[0] = msjError;
             }
         }
+
+        /// <summary>
+        /// ELABORADO POR: UNIDAD INFORMATICA - FINANCIERO
+        /// AUTOR: Jackeline Sáenz Sampson
+        /// Consulta proveedor por número de cédula
+        /// </summary>
+        public void ConsultaCedulaProveedor(string vCedula, out string[] vDescMsjError, out List<Proveedores> vListaProveedores)
+        {
+            vDescMsjError = new string[0];
+            string msjError = "";
+            vListaProveedores = new List<Proveedores>();
+
+            try
+            {
+                string sql = @"SELECT P1.CEDULA, P1.NOMBRE
+                            FROM SINAEP_REGISTRO_PROVEEDORES P1		
+                            WHERE P1.CEDULA = '" + vCedula + "'"
+                         + " AND  P1.CEDULA NOT IN (SELECT Z.NUMERO FROM SIRPA_DIREF01M_PROVE Z) "
+                         + " UNION "
+                         + " SELECT P2.NUMERO AS CEDULA, P2.DESCRIPCION AS NOMBRE "
+                         + " FROM SIRPA_DIREF01M_PROVE P2 "
+                         + " WHERE P2.NUMERO = '" + vCedula + "'";
+
+                DataSet dsProv = DBOracle.Consultar(sql);
+                List<Proveedores> ListaProveedores = new List<Proveedores>();
+
+                if (dsProv != null && dsProv.Tables.Count > 0 && dsProv.Tables[0].Rows.Count > 0)
+                {
+                    foreach (DataRow row in dsProv.Tables[0].Rows)
+                    {
+                        Proveedores Proveedor = new Proveedores();
+                        Proveedor.Cedula = row["CEDULA"].ToString();
+                        Proveedor.Nombre = row["NOMBRE"].ToString();
+                        ListaProveedores.Add(Proveedor);
+                    }
+                    vListaProveedores = ListaProveedores;
+                }
+            }
+            catch (Exception ex)
+            {
+                Array.Resize(ref vDescMsjError, vDescMsjError.Length + 1);
+                vDescMsjError[0] = msjError;
+            }
+        }
     }
 }
