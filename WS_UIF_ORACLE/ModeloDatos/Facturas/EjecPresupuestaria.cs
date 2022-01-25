@@ -43,5 +43,11 @@ namespace ModeloDatos.Facturas
         public string NumAcuerdoPago { get; set; }
 
         public string FechaAcuerdoPago { get; set; }
+
+        public string NumCesion { get; set; }
+
+        public string NumCesionario { get; set; }
+
+        public string Cesionario { get; set; }
     }
 }

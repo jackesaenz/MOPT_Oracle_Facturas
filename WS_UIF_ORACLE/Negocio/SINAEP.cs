@@ -209,9 +209,19 @@ namespace Negocio
                                 INNER JOIN ADPRF01D09_UNI_EJECUTORAS ueje ON ueje.ANO = rr.ANO AND ueje.DOCUMENTO = rr.DOCUMENTO AND ueje.TRANSACCION = '09'
                                 INNER JOIN ADPRF01D09_CENTRO_COSTO c ON c.ANO = ueje.ANO AND c.DOCUMENTO = ueje.DOCUMENTO AND c.TRANSACCION = '09' AND c.ID_U = ueje.ID_U
                                 INNER JOIN sinaep_rel_estruct_prog_org sec ON sec.SECCION = c.CENTRO_COSTO
-                                WHERE bpp2.ANO = bpp.ANO AND bpp2.TRANSACCION = bpp.TRANSACCION AND bpp2.RESPALDO = bpp.RESPALDO AND bpp2.NRO_FACTURA_COMERCIAL = bpp.NRO_FACTURA_COMERCIAL) AS DEPENDENCIA
+                                WHERE bpp2.ANO = bpp.ANO AND bpp2.TRANSACCION = bpp.TRANSACCION AND bpp2.RESPALDO = bpp.RESPALDO AND bpp2.NRO_FACTURA_COMERCIAL = bpp.NRO_FACTURA_COMERCIAL) AS DEPENDENCIA,
+                                CASE bpp.CODIGO_MONEDA 
+									WHEN '1' THEN 'COLONES'
+									WHEN '2' THEN 'DOLARES'
+								END AS MONEDA,
+                                bpp.TIPO_CAMBIO,
+                                bpp.NUMERO_CONTRATACION,
+                                bpp.NRO_CESION AS NUM_CESION,
+                                bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO,
+                                ces.NUMERO || ' ' || ces.DESCRIPCION AS CESIONARIO
                                 FROM SINAEP_BOL_PAGO_PROV bpp
                                 INNER JOIN SIRPA_DIREF01M_PROVE prov ON prov.NUMERO = bpp.CEDULA_PROVEEDOR
+                                LEFT JOIN SIRPA_DIREF01M_PROVE ces ON ces.NUMERO = bpp.CED_JURID_CESIONARIO
                                 WHERE 
                                 (bpp.TRANSACCION = 'FP' AND bpp.NRO_PREENTRADA_ALMACEN  != ' '
                                 AND SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,5,4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,3,2)||SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,0,2) >= '" + vFechaInicio + "' " 
@@ -247,6 +257,9 @@ namespace Negocio
                         factura.EstadoFactura = row["ESTADO_FACTURA"].ToString();
                         factura.NumAcuerdoPago = row["NUMERO_ACUERDO_PAGO"].ToString();
                         factura.FechaAcuerdoPago = row["FECHA_ACUERDO_PAGO"].ToString();
+                        factura.NumCesion = row["NUM_CESION"].ToString();
+                        factura.NumCesionario = row["NUM_CESIONARIO"].ToString();
+                        factura.Cesionario = row["CESIONARIO"].ToString();
                         ListaFacturas.Add(factura);
                     }
                     vListaFacturas = ListaFacturas;
