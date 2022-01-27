@@ -185,7 +185,6 @@ namespace Negocio
                                               WHEN '10' THEN '10-DESAPLICAR ACUERDO PAGO'
                                        END AS ESTADO_FACTURA,
                                        bpp.CEDULA_PROVEEDOR AS CEDULA_FACTURA,
-                                       prov.NUMERO || '-' ||  prov.DESCRIPCION AS NOMBRE_FACTURA,
                                        bpp.RESPALDO AS DOCUMENTO_PRESUPUESTARIO,
                                        bpp.CANTIDAD AS CANTIDAD,
                                        bpp.PRECIO AS PRECIO_FACTURA,
@@ -217,11 +216,8 @@ namespace Negocio
                                 bpp.TIPO_CAMBIO,
                                 bpp.NUMERO_CONTRATACION,
                                 bpp.NRO_CESION AS NUM_CESION,
-                                bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO,
-                                ces.NUMERO || ' ' || ces.DESCRIPCION AS CESIONARIO
+                                bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO
                                 FROM SINAEP_BOL_PAGO_PROV bpp
-                                INNER JOIN SIRPA_DIREF01M_PROVE prov ON prov.NUMERO = bpp.CEDULA_PROVEEDOR
-                                LEFT JOIN SIRPA_DIREF01M_PROVE ces ON ces.NUMERO = bpp.CED_JURID_CESIONARIO
                                 WHERE 
                                 (bpp.TRANSACCION = 'FP' AND bpp.NRO_PREENTRADA_ALMACEN  != ' '
                                 AND SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,5,4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,3,2)||SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,0,2) >= '" + vFechaInicio + "' " 
@@ -242,7 +238,6 @@ namespace Negocio
                         factura.Programa = row["PROGRAMA"].ToString();
                         factura.Dependencia = row["DEPENDENCIA"].ToString();
                         factura.CedFactura = row["CEDULA_FACTURA"].ToString();
-                        factura.NomFactura = row["NOMBRE_FACTURA"].ToString();
                         factura.FechaFactura = row["FECHA_FACTURA_COMERCIAL"].ToString();
                         factura.NumFactura = row["NUM_FACTURA"].ToString();
                         factura.DescArticulo = row["DESC_ARTICULO"].ToString();
@@ -259,7 +254,6 @@ namespace Negocio
                         factura.FechaAcuerdoPago = row["FECHA_ACUERDO_PAGO"].ToString();
                         factura.NumCesion = row["NUM_CESION"].ToString();
                         factura.NumCesionario = row["NUM_CESIONARIO"].ToString();
-                        factura.Cesionario = row["CESIONARIO"].ToString();
                         ListaFacturas.Add(factura);
                     }
                     vListaFacturas = ListaFacturas;
