@@ -48,7 +48,7 @@ namespace Negocio
                                     bp.DOCUMENTO_HDA,
                                     bp.NRO_ACUERDO,
                                     to_char(to_date(bp.FECHA_ACUERDO, 'yyyymmdd'), 'dd/mm/yyyy') AS FECHA_ACUERDO,
-                                    prov.CEDULA || '-' ||  prov.NOMBRE AS PROVEEDOR,
+                                    sp.PROVEEDOR_SERVICIO AS PROVEEDOR,
                                     to_char(to_date(sp.FECHA_RECIBIDO, 'yyyymmdd'), 'dd/mm/yyyy') AS FECHA_RECIBIDO
                             FROM SINAEP_BOLETA_PAGO bp
                             INNER JOIN SINAEP_DET_PROC_SERV_PUB sp ON sp.BOLETA_PAGO = bp.DOCUMENTO
@@ -56,10 +56,9 @@ namespace Negocio
                             INNER JOIN SINAEP_DET_PROC_SERV_PUB sp ON bp.DOCUMENTO = sp.BOLETA_PAGO AND bp.PROGRAMA = sp.PROGRAMA
                             AND bp.DIRECCION = sp.SUBPROGRAMA AND bp.PARTIDA = sp.PARTIDA AND bp.OBRA = sp.OBRA AND bp.FTE_FINANC = sp.FTE_FINANCIAMIENTO
                             AND bp.ANO = sp.ANO_PRESUPUESTARIO
-                            INNER JOIN SINAEP_REGISTRO_PROVEEDORES prov ON prov.CEDULA = sp.PROVEEDOR_SERVICIO AND prov.TIPO_PROVEEDOR = 'S'
                             WHERE bp.TRANSACCION = '11' AND bp.PARTIDA IN ('10201','10202','10204','10299')
                             AND bp.NRO_ACUERDO = '" + vAcuerdoPago + "' AND bp.ANO = '" + vAnoAcuerdo + "' AND sp.PARTIDA IN NVL('" + vServicio + "',sp.PARTIDA)"
-                           + "AND sp.NRO_FACTURA IN NVL('" + vNumFactura + "', sp.NRO_FACTURA) AND prov.CEDULA IN NVL('" + vProveedor + "', prov.CEDULA)"
+                           + "AND sp.NRO_FACTURA IN NVL('" + vNumFactura + "', sp.NRO_FACTURA) AND sp.PROVEEDOR_SERVICIO IN NVL('" + vProveedor + "', sp.PROVEEDOR_SERVICIO)"
                            + "AND sp.ESTADO IN NVL('" + vEstadoFactura + "',sp.ESTADO) AND sp.BOLETA_PAGO IN NVL('" + vBoletaPago + "',sp.BOLETA_PAGO)"
                            + "AND sp.FECHA_FACTURA >= NVL('" + vFechaInicio + "', sp.FECHA_FACTURA) AND sp.FECHA_FACTURA <= NVL('" + vFechaFinal + "', sp.FECHA_FACTURA)";
                 }
@@ -81,15 +80,14 @@ namespace Negocio
                                     bp.DOCUMENTO AS NUM_BOLETA_PAGO, bp.DOCUMENTO_HDA,
                                     bp.NRO_ACUERDO,
                                     to_char(to_date(bp.FECHA_ACUERDO, 'yyyymmdd'), 'dd/mm/yyyy') AS FECHA_ACUERDO,
-                                    prov.CEDULA || '-' ||  prov.NOMBRE AS PROVEEDOR,
+                                    sp.PROVEEDOR_SERVICIO AS PROVEEDOR,
                                     to_char(to_date(sp.FECHA_RECIBIDO, 'yyyymmdd'), 'dd/mm/yyyy') AS FECHA_RECIBIDO
                              FROM SINAEP_DET_PROC_SERV_PUB sp 
                              LEFT JOIN SINAEP_BOLETA_PAGO bp ON bp.DOCUMENTO = sp.BOLETA_PAGO AND bp.PROGRAMA = sp.PROGRAMA
                              AND bp.DIRECCION = sp.SUBPROGRAMA AND bp.PARTIDA = sp.PARTIDA AND bp.OBRA = sp.OBRA AND bp.FTE_FINANC = sp.FTE_FINANCIAMIENTO
                              AND bp.ANO = sp.ANO_PRESUPUESTARIO AND bp.TRANSACCION = '11'
-                             INNER JOIN SINAEP_REGISTRO_PROVEEDORES prov ON prov.CEDULA = sp.PROVEEDOR_SERVICIO AND prov.TIPO_PROVEEDOR = 'S'
                              WHERE (sp.FECHA_FACTURA >= '" + vFechaInicio + "' AND sp.FECHA_FACTURA <= '" + vFechaFinal + "') AND sp.PARTIDA IN NVL('" + vServicio + "',sp.PARTIDA)"
-                            + "AND sp.NRO_FACTURA IN NVL('" + vNumFactura + "',sp.NRO_FACTURA) AND prov.CEDULA IN NVL('" + vProveedor + "',prov.CEDULA)"
+                            + "AND sp.NRO_FACTURA IN NVL('" + vNumFactura + "',sp.NRO_FACTURA) AND sp.PROVEEDOR_SERVICIO IN NVL('" + vProveedor + "',sp.PROVEEDOR_SERVICIO)"
                             + "AND sp.ESTADO IN NVL('" + vEstadoFactura + "',sp.ESTADO) AND sp.BOLETA_PAGO IN NVL('" + vBoletaPago + "',sp.BOLETA_PAGO) ";
                 }
 
