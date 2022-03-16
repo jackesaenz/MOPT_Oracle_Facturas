@@ -265,7 +265,6 @@ namespace Negocio
                                        CASE bpp.CODIGO_MONEDA
                                             WHEN '1' THEN 'COLONES'
                                             WHEN '2' THEN 'DOLARES'
-
                                         END AS MONEDA,
                                         bpp.TIPO_CAMBIO,
                                         bpp.NUMERO_CONTRATACION,
@@ -299,6 +298,8 @@ namespace Negocio
                         factura.MontoIva = decimal.Parse(row["MONTO_IVA"].ToString());
                         factura.Renta = decimal.Parse(row["RENTA"].ToString());
                         factura.Multa = decimal.Parse(row["MULTA"].ToString());
+                        factura.Moneda = row["MONEDA"].ToString();
+                        factura.TipoCambio = decimal.Parse(row["TIPO_CAMBIO"].ToString());
                         factura.DocPresupuestario = row["DOCUMENTO_PRESUPUESTARIO"].ToString();
                         factura.CtaDeposito = row["CUENTA_DEPOSITO"].ToString();
                         factura.EstadoFactura = row["ESTADO_FACTURA"].ToString();
