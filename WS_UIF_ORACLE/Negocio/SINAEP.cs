@@ -216,13 +216,67 @@ namespace Negocio
                                 bpp.NRO_CESION AS NUM_CESION,
                                 bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO
                                 FROM SINAEP_BOL_PAGO_PROV bpp
-                                WHERE 
-                                (bpp.TRANSACCION = 'FP' AND bpp.NRO_PREENTRADA_ALMACEN  != ' '
-                                AND SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,5,4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,3,2)||SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,0,2) >= '" + vFechaInicio + "' " 
-                            + " AND SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,5,4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,3,2)||SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,0,2) <= '" + vFechaFinal + "' " 
-                            + " AND bpp.CEDULA_PROVEEDOR = '" + vCedulaJuridica + "') "
-                            + " OR(bpp.TRANSACCION = 'FP' AND bpp.NRO_PREENTRADA_ALMACEN = ' ' AND bpp.FECHA_FACTURA_COMERCIAL >= '" + vFechaInicio + "' AND bpp.FECHA_FACTURA_COMERCIAL <= '" + vFechaFinal + "') "
+                                WHERE bpp.TRANSACCION = 'FP' AND (bpp.NRO_PREENTRADA_ALMACEN = ' ' AND bpp.FECHA_FACTURA_COMERCIAL >= '" + vFechaInicio + "' AND bpp.FECHA_FACTURA_COMERCIAL <= '" + vFechaFinal + "') "
                             + " AND bpp.CEDULA_PROVEEDOR = '" + vCedulaJuridica + "' "
+                            + " AND bpp.NRO_FACTURA_COMERCIAL IN NVL('" + vNumFactura + "',bpp.NRO_FACTURA_COMERCIAL)"
+                            + " UNION ALL "
+                            + @" SELECT bpp.PROGRAMA ||'-'|| bpp.SUB_PROGRAMA AS PROGRAMA, 
+                                       bpp.NRO_FACTURA_COMERCIAL AS NUM_FACTURA,
+                                       bpp.DETALLE_ARTICULO AS DESC_ARTICULO,
+                                       to_char(to_date(SUBSTR(bpp.FECHA_FACTURA_COMERCIAL, 5, 4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL, 3, 2) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL, 0, 2), 'yyyymmdd'), 'dd/mm/yyyy') AS FECHA_FACTURA_COMERCIAL,
+                                       CASE bpp.ESTADO_TRAMITE
+                                              WHEN '01' THEN '01-REGISTRO PRE-ENTRADA'
+                                              WHEN '02' THEN '02-REVISIÓN BODEGA'
+                                              WHEN '03' THEN '03-VISADO TÉCNICO'
+                                              WHEN '04' THEN '04-AUTORIZACION-EJECUTOR'
+                                              WHEN '04' THEN '04-AUTORIZACION-EJECUTOR'
+                                              WHEN '05' THEN '05-REGISTRO ENTRADA'
+                                              WHEN '06' THEN '06-REGISTRO MIGO'
+                                              WHEN '07' THEN '07-APLICACION BOLETA PAGO'
+                                              WHEN '08' THEN '08-APLICACION ACUERDO PAGO'
+                                              WHEN '09' THEN '09-ANULACIÓN BOLETA PAGO'
+                                              WHEN '10' THEN '10-DESAPLICAR ACUERDO PAGO'
+                                       END AS ESTADO_FACTURA,
+                                       bpp.CEDULA_PROVEEDOR AS CEDULA_FACTURA,
+                                       bpp.RESPALDO AS DOCUMENTO_PRESUPUESTARIO,
+                                       bpp.CANTIDAD AS CANTIDAD,
+                                       bpp.PRECIO AS PRECIO_FACTURA,
+                                       bpp.MONTO AS MONTO_FACTURA,
+                                       bpp.IMPUESTO_IVA AS MONTO_IVA,
+                                       bpp.IMPUESTO_RENTA AS RENTA,
+                                       bpp.MONTO_MULTA AS MULTA,
+                                       --bpp.BANCO_SINPE, bpp.CUENTA_SINPE, bpp.CONTROL_SINPE,
+                                       bpp.BANCO_SINPE || bpp.CUENTA_SINPE || bpp.CONTROL_SINPE AS CUENTA_DEPOSITO,
+                                       DECODE(bpp.NRO_ACUERDO_PAGO, 'SN', 'SN', bpp.NRO_ACUERDO_PAGO) AS NUMERO_ACUERDO_PAGO,
+                                          DECODE(NVL(bpp.FECHA_ACUERDO_PAGO, ' '), ' ', '', to_char(to_date(bpp.FECHA_ACUERDO_PAGO, 'yyyymmdd'), 'dd/mm/yyyy')) AS FECHA_ACUERDO_PAGO,
+                                              (select oc.SECCIONES || '-' || sec.DESCRIPCION AS DEPENDENCIA
+                                       FROM SINAEP_BOL_PAGO_PROV bpp1
+                                       INNER JOIN SINAEP_ORDEN_COMPRA oc ON oc.ANO = bpp1.ANO AND oc.TRANSACCION = 'OP' AND oc.DOCUMENTO = bpp1.RESPALDO
+                                       INNER JOIN sinaep_rel_estruct_prog_org sec ON sec.SECCION = oc.SECCIONES
+                                       WHERE bpp1.ANO = bpp.ANO AND bpp1.TRANSACCION = bpp.TRANSACCION AND bpp1.RESPALDO = bpp.RESPALDO AND bpp1.NRO_FACTURA_COMERCIAL = bpp.NRO_FACTURA_COMERCIAL
+                                       UNION
+                                       select c.CENTRO_COSTO || '-' || sec.DESCRIPCION AS DEPENDENCIA
+                                       FROM SINAEP_BOL_PAGO_PROV bpp2
+                                       INNER JOIN SINAEP_RESERV_RECURSOS rr ON rr.ANO = bpp2.ANO AND rr.TRANSACCION = '09' AND rr.DOCUMENTO = bpp2.RESPALDO
+                                       INNER JOIN ADPRF01D09_UNI_EJECUTORAS ueje ON ueje.ANO = rr.ANO AND ueje.DOCUMENTO = rr.DOCUMENTO AND ueje.TRANSACCION = '09'
+                                       INNER JOIN ADPRF01D09_CENTRO_COSTO c ON c.ANO = ueje.ANO AND c.DOCUMENTO = ueje.DOCUMENTO AND c.TRANSACCION = '09' AND c.ID_U = ueje.ID_U
+                                       INNER JOIN sinaep_rel_estruct_prog_org sec ON sec.SECCION = c.CENTRO_COSTO
+                                       WHERE bpp2.ANO = bpp.ANO AND bpp2.TRANSACCION = bpp.TRANSACCION AND bpp2.RESPALDO = bpp.RESPALDO AND bpp2.NRO_FACTURA_COMERCIAL = bpp.NRO_FACTURA_COMERCIAL) AS DEPENDENCIA,
+                                       CASE bpp.CODIGO_MONEDA
+                                            WHEN '1' THEN 'COLONES'
+                                            WHEN '2' THEN 'DOLARES'
+
+                                        END AS MONEDA,
+                                        bpp.TIPO_CAMBIO,
+                                        bpp.NUMERO_CONTRATACION,
+                                        bpp.NRO_CESION AS NUM_CESION,
+                                        bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO
+                                FROM SINAEP_BOL_PAGO_PROV bpp
+                                WHERE
+                                (bpp.TRANSACCION = 'FP' AND bpp.NRO_PREENTRADA_ALMACEN != ' '
+                                AND SUBSTR(bpp.FECHA_FACTURA_COMERCIAL, 5, 4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL, 3, 2) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL, 0, 2) >= '" + vFechaInicio + "' " 
+                            + " AND SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,5,4) || SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,3,2)||SUBSTR(bpp.FECHA_FACTURA_COMERCIAL,0,2) <= '" + vFechaFinal + "' "
+                            + " AND bpp.CEDULA_PROVEEDOR = '" + vCedulaJuridica + "') "
                             + " AND bpp.NRO_FACTURA_COMERCIAL IN NVL('" + vNumFactura + "',bpp.NRO_FACTURA_COMERCIAL)";
 
                 DataSet dsEjecPre = DBOracle.Consultar(sql);

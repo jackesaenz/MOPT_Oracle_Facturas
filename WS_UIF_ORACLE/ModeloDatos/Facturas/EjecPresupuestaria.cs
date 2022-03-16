@@ -14,7 +14,7 @@ namespace ModeloDatos.Facturas
 
         public string CedFactura { get; set; }
 
-        public string NomFactura { get; set; }
+        //public string NomFactura { get; set; }
 
         public string FechaFactura { get; set; }
 
@@ -34,6 +34,10 @@ namespace ModeloDatos.Facturas
 
         public decimal Multa { get; set; }
 
+        public string Moneda { get; set; }
+
+        public decimal TipoCambio { get; set; }
+
         public string DocPresupuestario { get; set; }
 
         public string CtaDeposito { get; set; }
@@ -48,6 +52,6 @@ namespace ModeloDatos.Facturas
 
         public string NumCesionario { get; set; }
 
-        public string Cesionario { get; set; }
+        //public string Cesionario { get; set; }
     }
 }
