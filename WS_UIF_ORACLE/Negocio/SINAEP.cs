@@ -214,7 +214,8 @@ namespace Negocio
                                 bpp.TIPO_CAMBIO,
                                 bpp.NUMERO_CONTRATACION,
                                 bpp.NRO_CESION AS NUM_CESION,
-                                bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO
+                                bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO,
+                                bpp.DOCUMENTO_HDA AS DOCUMENTO_SIGAF
                                 FROM SINAEP_BOL_PAGO_PROV bpp
                                 WHERE bpp.TRANSACCION = 'FP' AND (bpp.NRO_PREENTRADA_ALMACEN = ' ' AND bpp.FECHA_FACTURA_COMERCIAL >= '" + vFechaInicio + "' AND bpp.FECHA_FACTURA_COMERCIAL <= '" + vFechaFinal + "') "
                             + " AND bpp.CEDULA_PROVEEDOR = '" + vCedulaJuridica + "' "
@@ -269,7 +270,8 @@ namespace Negocio
                                         bpp.TIPO_CAMBIO,
                                         bpp.NUMERO_CONTRATACION,
                                         bpp.NRO_CESION AS NUM_CESION,
-                                        bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO
+                                        bpp.CED_JURID_CESIONARIO AS NUM_CESIONARIO,
+                                        bpp.DOCUMENTO_HDA AS DOCUMENTO_SIGAF
                                 FROM SINAEP_BOL_PAGO_PROV bpp
                                 WHERE
                                 (bpp.TRANSACCION = 'FP' AND bpp.NRO_PREENTRADA_ALMACEN != ' '
@@ -307,6 +309,7 @@ namespace Negocio
                         factura.FechaAcuerdoPago = row["FECHA_ACUERDO_PAGO"].ToString();
                         factura.NumCesion = row["NUM_CESION"].ToString();
                         factura.NumCesionario = row["NUM_CESIONARIO"].ToString();
+                        factura.DocumentoSigaf = row["DOCUMENTO_SIGAF"].ToString();
                         ListaFacturas.Add(factura);
                     }
                     vListaFacturas = ListaFacturas;

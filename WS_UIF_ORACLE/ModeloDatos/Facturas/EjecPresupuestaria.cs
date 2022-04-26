@@ -53,5 +53,7 @@ namespace ModeloDatos.Facturas
         public string NumCesionario { get; set; }
 
         //public string Cesionario { get; set; }
+
+        public string DocumentoSigaf { get; set; }
     }
 }
